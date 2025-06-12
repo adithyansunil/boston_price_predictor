@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Boston House Price Predictor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(to right, #e0f7fa, #80deea);
+      padding: 2rem 0;
+    }
+    .form-label {
+      font-weight: 600;
+    }
+    .container {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      max-width: 720px;
+    }
+    .result {
+      margin-top: 2rem;
+      font-size: 1.3rem;
+      color: #00695c;
+      font-weight: 500;
+      text-align: center;
+    }
+  </style>
+
+  <script>
+    // Smooth scroll to top when prediction is shown
+    window.onload = () => {
+      const predictionText = document.querySelector('.result');
+      if (predictionText) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+  </script>
+</head>
+<body>
+  <div class="container my-5">
+    <h2 class="text-center text-primary mb-4">🏠 Boston House Price Prediction</h2>
+
+    <form action="/predict" method="post">
+      <div class="row g-3">
+        {% for col, hint in {
+          'crim': 'Crime rate per capita',
+          'zn': 'Residential land zone proportion',
+          'indus': 'Industrial zone proportion',
+          'chas': 'Charles River (1 if tract bounds river)',
+          'nox': 'Nitric oxide concentration (parts per 10 million)',
+          'rm': 'Average number of rooms',
+          'age': 'Proportion of owner-occupied units built before 1940',
+          'dis': 'Weighted distance to employment centers',
+          'rad': 'Accessibility to highways',
+          'tax': 'Property-tax rate per $10,000',
+          'ptratio': 'Pupil-teacher ratio',
+          'b': '1000(Bk - 0.63)^2 where Bk is % of Black residents',
+          'lstat': '% lower status of the population'
+        }.items() %}
+        <div class="col-md-6">
+          <label for="{{ col }}" class="form-label">{{ col | upper }}
+            <span data-bs-toggle="tooltip" title="{{ hint }}" style="cursor: help;">🛈</span>
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            name="{{ col }}"
+            id="{{ col }}"
+            placeholder="{{ hint }}"
+            value="{{ request.form.get(col, '') }}"
+            required
+          >
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="d-grid mt-4">
+        <button type="submit" class="btn btn-success btn-lg">Predict Price</button>
+      </div>
+    </form>
+
+    {% if prediction_text %}
+      <div class="result">{{ prediction_text }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Bootstrap 5 JS + Popper.js (for tooltips) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    [...tooltips].forEach(el => new bootstrap.Tooltip(el));
+  </script>
+</body>
+</html>
